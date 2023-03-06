@@ -1,29 +1,19 @@
 package main
 
-
-
 import (
-
-        "github.com/gofiber/fiber/v2"
-
+	"github.com/gofiber/fiber/v2"
+	db "github.com/jmorenohj/sports/common/config/db"
+	"github.com/jmorenohj/sports/sport"
 )
 
-
-
 func main() {
+	app := fiber.New()
+	app.Get("/", func(c *fiber.Ctx) error {
 
-        app := fiber.New()
+		return c.SendString("Hello, World!\n")
 
-
-
-        app.Get("/", func (c *fiber.Ctx) error {
-
-                return c.SendString("Hello, World!\n")
-
-        })
-
-
-
-        app.Listen(":3000")
-
+	})
+	db.Initdb()
+	sport.Route(app)
+	app.Listen(":3000")
 }
