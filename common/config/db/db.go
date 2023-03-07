@@ -31,6 +31,5 @@ func Initdb() {
 	if err := Client.Ping(context.TODO(), readpref.Primary()); err != nil {
 		panic(err)
 	}
-	fmt.Printf("t1: %T\n", err)
 	fmt.Println("Database running")
 }
