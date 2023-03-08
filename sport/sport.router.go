@@ -45,7 +45,7 @@ func Route(app *fiber.App) {
 		}
 
 		errors := ValidateSport(*sport)
-		if errors != "nil" {
+		if errors != "" {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": errors})
 		}
 
