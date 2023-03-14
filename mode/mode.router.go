@@ -69,4 +69,27 @@ func Route(app *fiber.App) {
 		return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Modo añadido exitosamente"})
 	})
 
+	mode.Delete("/:modeId/:sportId", func(c *fiber.Ctx) error {
+		modeId := c.Params("modeId")
+		sportId := c.Params("sportId")
+		modeObjectId, err := primitive.ObjectIDFromHex(modeId)
+		sportObjectId, err := primitive.ObjectIDFromHex(sportId)
+
+		result, err := sportsCollection.UpdateOne(context.TODO(), bson.D{{"_id", sportObjectId}}, bson.D{{"$pull", bson.D{{"modes", modeObjectId}}}})
+		_ = result
+		if err != nil {
+			fmt.Println(err)
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error al recibir al actualizar el deporte correspondiente"})
+		}
+
+		query, err := modesCollection.DeleteOne(context.TODO(), bson.M{"_id": modeObjectId})
+		_ = query
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "El deporte no se encuentra en la base de datos"})
+		}
+
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Modo eliminado exitosamente"})
+
+	})
+
 }
