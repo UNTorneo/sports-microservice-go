@@ -69,6 +69,34 @@ func Route(app *fiber.App) {
 		return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Modo añadido exitosamente"})
 	})
 
+	mode.Put("/:id", func(c *fiber.Ctx) error {
+		mode := new(Mode)
+		modeId := c.Params("id")
+		objectId, err := primitive.ObjectIDFromHex(modeId)
+		if err != nil {
+			fmt.Println(err)
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error al recibir al actualizar el modo correspondiente"})
+		}
+
+		if err := c.BodyParser(mode); err != nil {
+			fmt.Println(err)
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error al recibir el modo en el body"})
+		}
+		fmt.Println(mode)
+
+		results, err := modesCollection.UpdateOne(context.TODO(), bson.M{"_id": objectId},
+			bson.D{
+				{"$set", mode},
+			})
+		_ = results
+		if err != nil {
+			fmt.Println(err)
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error al guardar el modo en base de datos"})
+		}
+
+		return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Modo actualizado exitosamente"})
+	})
+
 	mode.Delete("/:modeId/:sportId", func(c *fiber.Ctx) error {
 		modeId := c.Params("modeId")
 		sportId := c.Params("sportId")
