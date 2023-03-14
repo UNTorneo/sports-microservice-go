@@ -58,4 +58,16 @@ func Route(app *fiber.App) {
 		return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Deporte añadido exitosamente"})
 	})
 
+	sport.Delete("/:id", func(c *fiber.Ctx) error {
+
+		sportId := c.Params("id")
+		objectId, err := primitive.ObjectIDFromHex(sportId)
+		query, err := sportsCollection.DeleteOne(context.TODO(), bson.M{"_id": objectId})
+		_ = query
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "El deporte no se encuentra en la base de datos"})
+		}
+
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Deporte borrado exitosamente"})
+	})
 }
