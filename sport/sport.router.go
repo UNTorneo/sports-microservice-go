@@ -15,6 +15,7 @@ func Route(app *fiber.App) {
 
 	sport := app.Group("/sport")
 	sportsCollection := db.Client.Database(env.EnvVariable("CUR_DB")).Collection("sports")
+	modesCollection := db.Client.Database(env.EnvVariable("CUR_DB")).Collection("modes")
 
 	sport.Get("/all", func(c *fiber.Ctx) error {
 		fmt.Println("Get sports")
@@ -116,6 +117,13 @@ func Route(app *fiber.App) {
 
 		sportId := c.Params("id")
 		objectId, err := primitive.ObjectIDFromHex(sportId)
+
+		_, err = modesCollection.DeleteMany(context.TODO(), bson.M{"sportId": objectId})
+		if err != nil {
+			fmt.Println(err)
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "Error eliminando los modos de juego"})
+		}
+
 		query, err := sportsCollection.DeleteOne(context.TODO(), bson.M{"_id": objectId})
 		_ = query
 		if err != nil {
