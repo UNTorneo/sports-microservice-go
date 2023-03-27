@@ -24,13 +24,13 @@ func Route(app *fiber.App) {
 		query, err := modesCollection.Find(context.TODO(), bson.D{{"sportId", objectId}})
 		if err != nil {
 			fmt.Println(err)
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "No se encontraron los modos de juego del deporte buscado"})
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "No se encontraron los modos de juego del deporte buscado"})
 		}
 
 		var modes []bson.M
 		if err = query.All(context.TODO(), &modes); err != nil {
 			fmt.Println(err)
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error recibiendo los datos desde la base de datos"})
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "Error recibiendo los datos desde la base de datos"})
 		}
 
 		return c.Status(fiber.StatusOK).JSON(modes)
@@ -42,13 +42,14 @@ func Route(app *fiber.App) {
 
 		if err := c.BodyParser(mode); err != nil {
 			fmt.Println(err)
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error al recibir el modo en el body"})
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "Error al recibir el modo en el body"})
 		}
 		fmt.Println(mode)
 
 		errors := ValidateMode(*mode)
 		if errors != "" {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": errors})
+			fmt.Println(errors)
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": errors})
 		}
 
 		sportId := mode.SportId
@@ -57,13 +58,13 @@ func Route(app *fiber.App) {
 		_ = results
 		if err != nil {
 			fmt.Println(err)
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error al guardar el modo en base de datos"})
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "Error al guardar el modo en base de datos"})
 		}
 		result, err := sportsCollection.UpdateOne(context.TODO(), bson.D{{"_id", sportId}}, bson.D{{"$push", bson.D{{"modes", results.InsertedID}}}})
 		_ = result
 		if err != nil {
 			fmt.Println(err)
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error al recibir al actualizar el deporte correspondiente"})
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "Error al recibir al actualizar el deporte correspondiente"})
 		}
 
 		return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Modo añadido exitosamente"})
@@ -75,12 +76,12 @@ func Route(app *fiber.App) {
 		objectId, err := primitive.ObjectIDFromHex(modeId)
 		if err != nil {
 			fmt.Println(err)
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error al recibir al actualizar el modo correspondiente"})
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "Error al recibir al actualizar el modo correspondiente"})
 		}
 
 		if err := c.BodyParser(mode); err != nil {
 			fmt.Println(err)
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error al recibir el modo en el body"})
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "Error al recibir el modo en el body"})
 		}
 		fmt.Println(mode)
 
@@ -91,7 +92,7 @@ func Route(app *fiber.App) {
 		_ = results
 		if err != nil {
 			fmt.Println(err)
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error al guardar el modo en base de datos"})
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "Error al guardar el modo en base de datos"})
 		}
 
 		return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Modo actualizado exitosamente"})
@@ -107,13 +108,14 @@ func Route(app *fiber.App) {
 		_ = result
 		if err != nil {
 			fmt.Println(err)
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error al recibir al actualizar el deporte correspondiente"})
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "Error al recibir al actualizar el deporte correspondiente"})
 		}
 
 		query, err := modesCollection.DeleteOne(context.TODO(), bson.M{"_id": modeObjectId})
 		_ = query
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "El deporte no se encuentra en la base de datos"})
+			fmt.Println(err)
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "El deporte no se encuentra en la base de datos"})
 		}
 
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Modo eliminado exitosamente"})

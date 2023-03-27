@@ -8,6 +8,7 @@ import (
 type Mode struct {
 	ID                primitive.ObjectID `bson:"_id,omitempty"`
 	SportId           primitive.ObjectID `bson:"sportId,omitempty"validate:"required"`
+	Name              string             `bson:"name,omitempty"validate:"required"`
 	WinningPoints     int                `bson:"winningPoints,omitempty"validate:"required,number"`
 	TeamsNumber       int                `bson:"teamsNumber,omitempty"validate:"required,number"`
 	PlayersPerTeam    int                `bson:"playersPerTeam,omitempty"validate:"required,number"`

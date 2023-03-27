@@ -22,7 +22,8 @@ func Route(app *fiber.App) {
 		query, err := sportsCollection.Find(context.TODO(), bson.D{})
 
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "El deporte no se encuentra en la base de datos"})
+			fmt.Println(err)
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "Error al cargar los deportes"})
 		}
 
 		var sport []bson.M
@@ -43,13 +44,15 @@ func Route(app *fiber.App) {
 		query, err := sportsCollection.Find(context.TODO(), bson.D{{"_id", objectId}})
 
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "El deporte no se encuentra en la base de datos"})
+			fmt.Println(err)
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "El deporte no se encuentra en la base de datos"})
 		}
 
 		var sport []bson.M
 
 		if err = query.All(context.TODO(), &sport); err != nil {
-			panic(err)
+			fmt.Println(err)
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "Error al recibir la información de la base de datos"})
 		}
 
 		fmt.Println(sport)
@@ -62,7 +65,7 @@ func Route(app *fiber.App) {
 		fmt.Println("Add sport")
 		if err := c.BodyParser(sport); err != nil {
 			fmt.Println(err)
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error al guardar el deporte en base de datos"})
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "Error al guardar el deporte en base de datos"})
 		}
 
 		errors := ValidateSport(*sport)
@@ -81,6 +84,34 @@ func Route(app *fiber.App) {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Deporte añadido exitosamente"})
 	})
 
+	sport.Put("/:id", func(c *fiber.Ctx) error {
+		sport := new(Sport)
+		sportId := c.Params("id")
+		objectId, err := primitive.ObjectIDFromHex(sportId)
+		if err != nil {
+			fmt.Println(err)
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "Error al recibir al actualizar el deporte correspondiente"})
+		}
+
+		if err := c.BodyParser(sport); err != nil {
+			fmt.Println(err)
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "Error al recibir el deporte en el body"})
+		}
+		fmt.Println(sport)
+
+		results, err := sportsCollection.UpdateOne(context.TODO(), bson.M{"_id": objectId},
+			bson.D{
+				{"$set", sport},
+			})
+		_ = results
+		if err != nil {
+			fmt.Println(err)
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "Error al guardar el deporte en base de datos"})
+		}
+
+		return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Deporte actualizado exitosamente"})
+	})
+
 	sport.Delete("/:id", func(c *fiber.Ctx) error {
 
 		sportId := c.Params("id")
@@ -88,7 +119,8 @@ func Route(app *fiber.App) {
 		query, err := sportsCollection.DeleteOne(context.TODO(), bson.M{"_id": objectId})
 		_ = query
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "El deporte no se encuentra en la base de datos"})
+			fmt.Println(err)
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "El deporte no se encuentra en la base de datos"})
 		}
 
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Deporte borrado exitosamente"})
