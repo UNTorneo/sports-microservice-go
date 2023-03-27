@@ -16,8 +16,28 @@ func Route(app *fiber.App) {
 	sport := app.Group("/sport")
 	sportsCollection := db.Client.Database(env.EnvVariable("CUR_DB")).Collection("sports")
 
-	sport.Get("/:id", func(c *fiber.Ctx) error {
+	sport.Get("/all", func(c *fiber.Ctx) error {
+		fmt.Println("Get sports")
 
+		query, err := sportsCollection.Find(context.TODO(), bson.D{})
+
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "El deporte no se encuentra en la base de datos"})
+		}
+
+		var sport []bson.M
+
+		if err = query.All(context.TODO(), &sport); err != nil {
+			panic(err)
+		}
+
+		fmt.Println(sport)
+
+		return c.Status(fiber.StatusOK).JSON(sport)
+	})
+
+	sport.Get("/:id", func(c *fiber.Ctx) error {
+		fmt.Println("Get sport")
 		sportId := c.Params("id")
 		objectId, err := primitive.ObjectIDFromHex(sportId)
 		query, err := sportsCollection.Find(context.TODO(), bson.D{{"_id", objectId}})
@@ -39,23 +59,26 @@ func Route(app *fiber.App) {
 
 	sport.Post("/", func(c *fiber.Ctx) error {
 		sport := new(Sport)
-
+		fmt.Println("Add sport")
 		if err := c.BodyParser(sport); err != nil {
+			fmt.Println(err)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error al guardar el deporte en base de datos"})
 		}
 
 		errors := ValidateSport(*sport)
 		if errors != "" {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": errors})
+			fmt.Println(errors)
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": errors})
 		}
 
 		results, err := sportsCollection.InsertOne(context.TODO(), sport)
 		_ = results
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error al guardar el deporte en base de datos"})
+			fmt.Println(err)
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "Error al guardar el deporte en base de datos"})
 		}
 
-		return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Deporte añadido exitosamente"})
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Deporte añadido exitosamente"})
 	})
 
 	sport.Delete("/:id", func(c *fiber.Ctx) error {

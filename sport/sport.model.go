@@ -7,10 +7,10 @@ import (
 
 type Sport struct {
 	ID             primitive.ObjectID   `bson:"_id,omitempty"`
-	Modes          []primitive.ObjectID `bson:"modes,omitempty"validate:"required"`
+	Modes          []primitive.ObjectID `bson:"modes,omitempty"`
 	Name           string               `bson:"name,omitempty"validate:"required"`
 	Description    string               `bson:"description,omitempty"validate:"required"`
-	imgs           []string             `bson:"imgs,omitempty"`
+	Imgs           []string             `bson:"imgs,omitempty"`
 	Logo           string               `bson:"logo,omitempty"`
 	Recommendation []string             `bson:"recommendation,omitempty"validate:"required"`
 }
