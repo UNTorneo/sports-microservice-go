@@ -55,8 +55,17 @@ func Route(app *fiber.App) {
 			fmt.Println(err)
 			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "Error al recibir la información de la base de datos"})
 		}
+		if sport[0]["imgs"] == nil {
+			sport[0]["imgs"] = []string{}
+		}
 
-		fmt.Println(sport)
+		if sport[0]["modes"] == nil {
+			sport[0]["modes"] = []string{}
+		}
+
+		if sport[0]["recommendation"] == nil {
+			sport[0]["recommendation"] = []string{}
+		}
 
 		return c.Status(fiber.StatusOK).JSON(sport[0])
 	})
@@ -68,7 +77,7 @@ func Route(app *fiber.App) {
 			fmt.Println(err)
 			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "Error al guardar el deporte en base de datos"})
 		}
-
+		fmt.Println(sport)
 		errors := ValidateSport(*sport)
 		if errors != "" {
 			fmt.Println(errors)
