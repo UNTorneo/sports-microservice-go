@@ -18,7 +18,7 @@ var Client *mongo.Client
 func Initdb() {
 	serverAPIOptions := options.ServerAPI(options.ServerAPIVersion1)
 	clientOptions := options.Client().
-		ApplyURI("mongodb+srv://jmorenoh:" + url.QueryEscape(env.EnvVariable("DB_PASSWD")) + "@sport.5aulv0u.mongodb.net/?retryWrites=true&w=majority").
+		ApplyURI("mongodb+srv://" + env.EnvVariable("DB_USER") + ":" + url.QueryEscape(env.EnvVariable("DB_PASSWD")) + "@sport.5aulv0u.mongodb.net/?retryWrites=true&w=majority").
 		SetServerAPIOptions(serverAPIOptions)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
