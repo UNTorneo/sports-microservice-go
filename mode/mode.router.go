@@ -52,7 +52,7 @@ func Route(app *fiber.App) {
 			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "Error recibiendo los datos desde la base de datos"})
 		}
 
-		return c.Status(fiber.StatusOK).JSON(modes)
+		return c.Status(fiber.StatusOK).JSON(modes[0])
 
 	})
 
