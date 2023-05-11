@@ -1,0 +1,4 @@
+PORT=
+DB_PASSWD = PoxlRbrdppQoqw1q
+CUR_DB = testing
+DB_USER = jmorenoh

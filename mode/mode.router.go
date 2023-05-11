@@ -37,6 +37,25 @@ func Route(app *fiber.App) {
 
 	})
 
+	mode.Get("/:modeId/mode", func(c *fiber.Ctx) error {
+		sportId := c.Params("modeId")
+		objectId, err := primitive.ObjectIDFromHex(sportId)
+		query, err := modesCollection.Find(context.TODO(), bson.D{{"_id", objectId}})
+		if err != nil {
+			fmt.Println(err)
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "No se encontraron el modo de juego buscado."})
+		}
+
+		var modes []bson.M
+		if err = query.All(context.TODO(), &modes); err != nil {
+			fmt.Println(err)
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": "Error recibiendo los datos desde la base de datos"})
+		}
+
+		return c.Status(fiber.StatusOK).JSON(modes)
+
+	})
+
 	mode.Post("/", func(c *fiber.Ctx) error {
 		mode := new(Mode)
 
